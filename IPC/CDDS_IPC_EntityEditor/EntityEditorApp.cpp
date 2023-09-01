@@ -13,7 +13,7 @@ EntityEditorApp::EntityEditorApp(int screenWidth, int screenHeight) : m_screenWi
 }
 
 EntityEditorApp::~EntityEditorApp() {
-	UnmapViewOfFile(numberOfEnities);
+	UnmapViewOfFile(numberOfEntities);
 	CloseHandle(hNumberOfEntities);
 
 	UnmapViewOfFile(entities);
