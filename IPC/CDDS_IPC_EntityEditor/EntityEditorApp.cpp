@@ -1,6 +1,7 @@
 #include "EntityEditorApp.h"
 #include <random>
 #include <time.h>
+#include <Windows.h>
 
 #define RAYGUI_IMPLEMENTATION
 #define RAYGUI_SUPPORT_ICONS
@@ -12,13 +13,40 @@ EntityEditorApp::EntityEditorApp(int screenWidth, int screenHeight) : m_screenWi
 }
 
 EntityEditorApp::~EntityEditorApp() {
-	
+	UnmapViewOfFile(numberOfEnities);
+	CloseHandle(hNumberOfEntities);
+
+	UnmapViewOfFile(entities);
+	CloseHandle(hEntities);
 }
 
 bool EntityEditorApp::Startup() {
 
 	InitWindow(m_screenWidth, m_screenHeight, "EntityDisplayApp");
 	SetTargetFPS(60);
+
+	//Create Named Shared Memory for the size of the array of entities
+	hNumberOfEntities = CreateFileMapping(INVALID_HANDLE_VALUE,
+		nullptr,
+		PAGE_READWRITE,
+		0, 
+		sizeof(ENTITY_COUNT),
+		L"EntityCount");
+	if (hNumberOfEntities == nullptr) {
+		return false;
+	}
+
+	numberOfEntities = (int*)MapViewOfFile(hNumberOfEntities,
+		FILE_MAP_ALL_ACCESS,
+		0,
+		0,
+		sizeof(int));
+	if (numberOfEntities == nullptr) {
+		return false;
+	}
+
+	*numberOfEntities = ENTITY_COUNT;
+
 
 	srand(time(nullptr));
 	for (auto& entity : m_entities) {
@@ -31,7 +59,6 @@ bool EntityEditorApp::Startup() {
 		entity.g = rand() % 255;
 		entity.b = rand() % 255;
 	}
-	
 	return true;
 }
 
@@ -100,6 +127,29 @@ void EntityEditorApp::Update(float deltaTime) {
 		m_entities[i].y = fmod(m_entities[i].y, m_screenHeight);
 		if (m_entities[i].y < 0)
 			m_entities[i].y += m_screenHeight;
+	}
+
+	//Create Named Shared Memory of the Entities and their current data
+	hEntities = CreateFileMapping(INVALID_HANDLE_VALUE,
+		nullptr,
+		PAGE_READWRITE,
+		0,
+		sizeof(Entity) * ENTITY_COUNT, L"Entities");
+	if (hEntities == nullptr) {
+		return;
+	}
+
+	entities = (Entity*)MapViewOfFile(hEntities,
+		FILE_MAP_ALL_ACCESS,
+		0,
+		0,
+		sizeof(Entity) * ENTITY_COUNT);
+	if (entities == nullptr) {
+		return;
+	}
+
+	for (int i = 0; i < ENTITY_COUNT; i++) {
+		entities[i] = m_entities[i];
 	}
 }
 

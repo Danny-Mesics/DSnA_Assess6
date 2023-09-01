@@ -27,8 +27,12 @@ protected:
 	int m_screenHeight;
 
 	// define a block of entities that should be shared
-	enum { ENTITY_COUNT = 10 };
+	enum { ENTITY_COUNT = 1000 };
 	Entity m_entities[ENTITY_COUNT];
 
-	HANDLE h;
+	int* numberOfEntities;
+	HANDLE hNumberOfEntities;
+
+	Entity* entities;
+	HANDLE hEntities;
 };

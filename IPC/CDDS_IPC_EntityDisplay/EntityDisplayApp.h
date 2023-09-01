@@ -13,7 +13,7 @@ struct Entity {
 
 class EntityDisplayApp  {
 public:
-	EntityDisplayApp(int screenWidth = 800, int screenHeight = 450);
+	EntityDisplayApp(int screenWidth = 1080, int screenHeight = 720);
 	~EntityDisplayApp();
 
 	bool Startup();
@@ -28,4 +28,10 @@ protected:
 
 	// an array of an unknown number of entities
 	std::vector<Entity> m_entities;
+
+	int* count;
+	HANDLE hGetEntityCount;
+
+	Entity* entities;
+	HANDLE hGetEntities;
 };
